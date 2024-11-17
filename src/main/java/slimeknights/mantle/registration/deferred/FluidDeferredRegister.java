@@ -1,5 +1,6 @@
 package slimeknights.mantle.registration.deferred;
 
+import io.github.fabricators_of_create.porting_lib.fluids.FluidType;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.block.AbstractBlock;
@@ -11,14 +12,11 @@ import net.minecraft.fluid.FlowableFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BucketItem;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.BlockSoundGroup;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.ForgeFlowingFluid;
-import net.minecraftforge.fluids.ForgeFlowingFluid.Properties;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import slimeknights.mantle.fluid.TextureFluidType;
 import slimeknights.mantle.fluid.UnplaceableFluid;
 import slimeknights.mantle.registration.DelayedSupplier;
@@ -26,6 +24,7 @@ import slimeknights.mantle.registration.FluidBuilder;
 import slimeknights.mantle.registration.RegistrationHelper;
 import slimeknights.mantle.registration.object.FlowingFluidObject;
 import slimeknights.mantle.registration.object.FluidObject;
+import slimeknights.tconstruct.TConstruct;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,24 +34,24 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
-    private final SynchronizedDeferredRegister<FluidType> fluidTypeRegister;
+//    private final SynchronizedDeferredRegister<FluidType> fluidTypeRegister;
     private final SynchronizedDeferredRegister<Block> blockRegister;
     private final SynchronizedDeferredRegister<Item> itemRegister;
 
     public FluidDeferredRegister(String modID) {
-        super(RegistryKeys.FLUID, modID);
-        this.fluidTypeRegister = SynchronizedDeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, modID);
-        this.blockRegister = SynchronizedDeferredRegister.create(RegistryKeys.BLOCK, modID);
-        this.itemRegister = SynchronizedDeferredRegister.create(RegistryKeys.ITEM, modID);
+        super(modID);
+//        this.fluidTypeRegister = SynchronizedDeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, modID);
+        this.blockRegister = SynchronizedDeferredRegister.create(Registries.BLOCK, modID);
+        this.itemRegister = SynchronizedDeferredRegister.create(Registries.ITEM, modID);
     }
 
-    @Override
-    public void register(IEventBus bus) {
-        super.register(bus);
-        this.fluidTypeRegister.register(bus);
-        this.blockRegister.register(bus);
-        this.itemRegister.register(bus);
-    }
+//    @Override
+//    public void register(IEventBus bus) {
+//        super.register(bus);
+//        this.fluidTypeRegister.register(bus);
+//        this.blockRegister.register(bus);
+//        this.itemRegister.register(bus);
+//    }
 
     /**
      * Registers a fluid type to the registry
@@ -62,8 +61,9 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
      * @param <I>  Fluid type
      * @return Fluid to supply
      */
-    public <I extends FluidType> RegistryObject<I> registerType(String name, Supplier<? extends I> sup) {
-        return this.fluidTypeRegister.register(name, sup);
+    public <I extends FluidType> RegistryEntry<I> registerType(String name, Supplier<? extends I> sup) {
+       // return RegistryEntry.of(Registry.register(Registries.FLUID,TConstruct.getResource(name), sup.get());
+        // TODO
     }
 
     /**
@@ -74,8 +74,8 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
      * @param <I>  Fluid type
      * @return Fluid to supply
      */
-    public <I extends Fluid> RegistryObject<I> registerFluid(String name, Supplier<? extends I> sup) {
-        return this.register.register(name, sup);
+    public <I extends Fluid> RegistryEntry<I> registerFluid(String name, Supplier<? extends I> sup) {
+        return RegistryEntry.of(Registry.register(Registries.FLUID, TConstruct.getResource(name), sup.get()));
     }
 
     /**
@@ -109,7 +109,7 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
             if (this.type != null) {
                 throw new IllegalStateException("Type already created for " + this.name);
             }
-            this.type = FluidDeferredRegister.this.fluidTypeRegister.register(this.name, type);
+            this.type = FluidDeferredRegister.this.fluidTypeRegister.register(this.name, type)::value;
             return this;
         }
 
@@ -137,14 +137,14 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
             if (this.bucket != null) {
                 throw new IllegalStateException("Bucket already created for " + this.name);
             }
-            return bucket(FluidDeferredRegister.this.itemRegister.register(this.name + "_bucket", () -> constructor.apply(this.stillDelayed)));
+            return bucket(FluidDeferredRegister.this.itemRegister.register(this.name + "_bucket", () -> constructor.apply(this.stillDelayed))::value);
         }
 
         /**
          * Creates the default bucket
          */
         public Builder bucket() {
-            return bucket(FluidDeferredRegister.this.itemRegister.register(this.name + "_bucket", () -> new BucketItem(this.stillDelayed, RegistrationHelper.BUCKET_PROPS)));
+            return bucket(FluidDeferredRegister.this.itemRegister.register(this.name + "_bucket", () -> new BucketItem(this.stillDelayed, RegistrationHelper.BUCKET_PROPS))::value);
         }
 
 
@@ -159,14 +159,14 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
             if (this.block != null) {
                 throw new IllegalStateException("Block already created for " + this.name);
             }
-            return block(FluidDeferredRegister.this.blockRegister.register(this.name + "_fluid", () -> constructor.apply((Supplier<FlowableFluid>) (Supplier) this.stillDelayed)));
+            return block(FluidDeferredRegister.this.blockRegister.register(this.name + "_fluid", () -> constructor.apply((Supplier<FlowableFluid>) (Supplier) this.stillDelayed))::value);
         }
 
         /**
          * Creates the default block from the given material and light level
          */
         public Builder block(MapColor color, int lightLevel) {
-            return this.block(sup -> new FluidBlock(sup, AbstractBlock.Settings.create().mapColor(color).replaceable().noCollision().ticksRandomly().strength(100.0F).luminance(state -> lightLevel).pistonBehavior(PistonBehavior.DESTROY).dropsNothing().liquid().sounds(BlockSoundGroup.INTENTIONALLY_EMPTY)));
+            return this.block(sup -> new FluidBlock(sup.get(), AbstractBlock.Settings.create().mapColor(color).replaceable().noCollision().ticksRandomly().strength(100.0F).luminance(state -> lightLevel).pistonBehavior(PistonBehavior.DESTROY).dropsNothing().liquid().sounds(BlockSoundGroup.INTENTIONALLY_EMPTY)));
         }
 
 
@@ -193,7 +193,7 @@ public class FluidDeferredRegister extends DeferredRegisterWrapper<Fluid> {
             if (this.type == null) {
                 this.type();
             }
-            RegistryObject<F> fluid = FluidDeferredRegister.this.registerFluid(this.name, () -> constructor.apply(this));
+            RegistryEntry<F> fluid = FluidDeferredRegister.this.registerFluid(this.name, () -> constructor.apply(this));
             this.stillDelayed.setSupplier(fluid);
             return new FluidObject<>(FluidDeferredRegister.this.resource(this.name), this.tagName, this.type, fluid);
         }

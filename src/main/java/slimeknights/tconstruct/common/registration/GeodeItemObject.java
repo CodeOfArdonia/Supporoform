@@ -4,14 +4,13 @@ import lombok.Getter;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.MapColor;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.Settings;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.registries.RegistryObject;
 import slimeknights.mantle.registration.deferred.BlockDeferredRegister;
 import slimeknights.mantle.registration.object.ItemObject;
 import slimeknights.tconstruct.world.block.BuddingCrystalBlock;
@@ -36,18 +35,21 @@ public class GeodeItemObject extends ItemObject<Item> {
     private final Supplier<? extends Block> mediumBud;
     private final Supplier<? extends Block> largeBud;
 
-    public GeodeItemObject(RegistryObject<? extends Item> shard, BlockDeferredRegister register, MaterialColor color, BlockSoundGroup blockSound, SoundEvent chimeSound, Map<BudSize, BlockSoundGroup> clusterSounds, int baseLight, Settings props) {
+    public GeodeItemObject(RegistryEntry<? extends Item> shard, BlockDeferredRegister register, MapColor color, BlockSoundGroup blockSound, SoundEvent chimeSound, Map<BudSize, BlockSoundGroup> clusterSounds, int baseLight, Settings props) {
         super(shard);
         // allow the crystals to glow optionally
         IntFunction<ToIntFunction<BlockState>> light = extra -> {
             int calculated = Math.min(extra + baseLight, 15);
             return state -> calculated;
         };
-        String name = shard.getId().getPath();
+        String name = shard.getKey().get().getValue().getPath();
         Function<Block, ? extends BlockItem> blockItem = block -> new BlockItem(block, props);
         ToIntFunction<BlockState> crystalLight = light.apply(0);
-        block = register.register(name + "_block", () -> new CrystalBlock(chimeSound, AbstractBlock.Settings.create().emissiveLighting(crystalLight).strength(1.5F).sound(blockSound).requiresCorrectToolForDrops()), blockItem);
-        budding = register.register("budding_" + name, () -> new BuddingCrystalBlock(this, chimeSound, AbstractBlock.Settings.create().ticksRandomly().emissiveLighting(crystalLight).strength(1.5F).sound(blockSound).requiresCorrectToolForDrops()), blockItem);
+        block = register.register(name + "_block", () -> new CrystalBlock(chimeSound, AbstractBlock.Settings.create().strength(1.5F).sounds(blockSound).requiresTool()), blockItem);
+        budding = register.register("budding_" + name, () -> new BuddingCrystalBlock(this, chimeSound, AbstractBlock.Settings.create().ticksRandomly().strength(1.5F).sounds(blockSound).requiresTool()), blockItem);
+//        block = register.register(name + "_block", () -> new CrystalBlock(chimeSound, AbstractBlock.Settings.create().emissiveLighting(crystalLight).strength(1.5F).sound(blockSound).requiresCorrectToolForDrops()), blockItem);
+//        budding = register.register("budding_" + name, () -> new BuddingCrystalBlock(this, chimeSound, AbstractBlock.Settings.create().ticksRandomly().emissiveLighting(crystalLight).strength(1.5F).sound(blockSound).requiresCorrectToolForDrops()), blockItem);
+        // TODO
         // buds
         Supplier<AbstractBlock.Settings> budProps = () -> AbstractBlock.Settings.create().nonOpaque().strength(1.5F);
         cluster = register.register(name + "_cluster", () -> new CrystalClusterBlock(chimeSound, 7, 3, budProps.get().luminance(light.apply(5)).sounds(clusterSounds.get(BudSize.CLUSTER))), blockItem);

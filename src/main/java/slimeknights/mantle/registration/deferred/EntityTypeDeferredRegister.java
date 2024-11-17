@@ -4,10 +4,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraftforge.common.ForgeSpawnEggItem;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraft.registry.entry.RegistryEntry;
+import slimeknights.tconstruct.TConstruct;
 
 import java.util.function.Supplier;
 
@@ -17,18 +18,18 @@ import java.util.function.Supplier;
 @SuppressWarnings("unused")
 public class EntityTypeDeferredRegister extends DeferredRegisterWrapper<EntityType<?>> {
 
-    private final SynchronizedDeferredRegister<Item> itemRegistry;
+//    private final SynchronizedDeferredRegister<Item> itemRegistry;
 
     public EntityTypeDeferredRegister(String modID) {
-        super(RegistryKeys.ENTITY_TYPE, modID);
-        this.itemRegistry = SynchronizedDeferredRegister.create(RegistryKeys.ITEM, modID);
+        super(modID);
+//        this.itemRegistry = SynchronizedDeferredRegister.create(RegistryKeys.ITEM, modID);
     }
 
-    @Override
-    public void register(IEventBus bus) {
-        super.register(bus);
-        this.itemRegistry.register(bus);
-    }
+//    @Override
+//    public void register(IEventBus bus) {
+//        super.register(bus);
+//        this.itemRegistry.register(bus);
+//    }
 
     /**
      * Registers a entity type for the given entity type builder
@@ -38,8 +39,8 @@ public class EntityTypeDeferredRegister extends DeferredRegisterWrapper<EntityTy
      * @param <T>  Entity class type
      * @return Entity registry object
      */
-    public <T extends Entity> RegistryObject<EntityType<T>> register(String name, Supplier<EntityType.Builder<T>> sup) {
-        return this.register.register(name, () -> sup.get().build(this.resourceName(name)));
+    public <T extends Entity> RegistryEntry<EntityType<T>> register(String name, Supplier<EntityType.Builder<T>> sup) {
+        return RegistryEntry.of(Registry.register(Registries.ENTITY_TYPE,TConstruct.getResource(name), sup.get().build(this.resourceName(name))));
     }
 
     /**
@@ -52,9 +53,10 @@ public class EntityTypeDeferredRegister extends DeferredRegisterWrapper<EntityTy
      * @param <T>       Entity class type
      * @return Entity registry object
      */
-    public <T extends MobEntity> RegistryObject<EntityType<T>> registerWithEgg(String name, Supplier<EntityType.Builder<T>> sup, int primary, int secondary) {
-        RegistryObject<EntityType<T>> object = this.register(name, sup);
-        this.itemRegistry.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(object, primary, secondary, new Item.Settings()));
+    public <T extends MobEntity> RegistryEntry<EntityType<T>> registerWithEgg(String name, Supplier<EntityType.Builder<T>> sup, int primary, int secondary) {
+        RegistryEntry<EntityType<T>> object = this.register(name, sup);
+//        this.itemRegistry.register(name + "_spawn_egg", () -> new ForgeSpawnEggItem(object, primary, secondary, new Item.Settings()));
+        // TODO
         return object;
     }
 }
