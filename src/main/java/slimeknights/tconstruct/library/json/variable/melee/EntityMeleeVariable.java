@@ -1,0 +1,48 @@
+package slimeknights.tconstruct.library.json.variable.melee;
+
+import slimeknights.mantle.data.loadable.primitive.EnumLoadable;
+import slimeknights.mantle.data.loadable.primitive.FloatLoadable;
+import slimeknights.mantle.data.loadable.record.RecordLoadable;
+import slimeknights.mantle.data.registry.GenericLoaderRegistry.IGenericLoader;
+import slimeknights.tconstruct.library.json.variable.entity.EntityVariable;
+import slimeknights.tconstruct.library.tools.context.ToolAttackContext;
+import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
+
+import org.jetbrains.annotations.Nullable;
+import net.minecraft.entity.LivingEntity;
+
+/**
+ * Reads an entity variable from melee content
+ *
+ * @param entity   Entity variable
+ * @param which    Determines whether to read the attacker or the target
+ * @param fallback Fallback if the entity is not found
+ */
+public record EntityMeleeVariable(EntityVariable entity, WhichEntity which, float fallback) implements MeleeVariable {
+    public static final RecordLoadable<EntityMeleeVariable> LOADER = RecordLoadable.create(
+            EntityVariable.LOADER.directField("entity_type", EntityMeleeVariable::entity),
+            new EnumLoadable<>(WhichEntity.class).requiredField("which", EntityMeleeVariable::which),
+            FloatLoadable.ANY.requiredField("fallback", EntityMeleeVariable::fallback),
+            EntityMeleeVariable::new);
+
+    @Override
+    public float getValue(IToolStackView tool, @Nullable ToolAttackContext context, @Nullable LivingEntity attacker) {
+        LivingEntity entity = null;
+        if (this.which == WhichEntity.ATTACKER) {
+            entity = attacker;
+        } else if (context != null) {
+            entity = context.getLivingTarget();
+        }
+        if (entity != null) {
+            return this.entity.getValue(entity);
+        }
+        return this.fallback;
+    }
+
+    @Override
+    public IGenericLoader<? extends MeleeVariable> getLoader() {
+        return LOADER;
+    }
+
+    public enum WhichEntity {ATTACKER, TARGET}
+}

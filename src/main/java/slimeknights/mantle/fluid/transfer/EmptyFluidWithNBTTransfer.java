@@ -1,0 +1,39 @@
+package slimeknights.mantle.fluid.transfer;
+
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.Identifier;
+import slimeknights.mantle.Mantle;
+import slimeknights.mantle.recipe.helper.ItemOutput;
+
+/**
+ * Fluid transfer info that empties a fluid from an item, copying the fluid's NBT to the stack
+ */
+public class EmptyFluidWithNBTTransfer extends EmptyFluidContainerTransfer {
+    public static final Identifier ID = Mantle.getResource("empty_nbt");
+
+    public EmptyFluidWithNBTTransfer(Ingredient input, ItemOutput filled, FluidStack fluid) {
+        super(input, filled, fluid);
+    }
+
+    @Override
+    protected FluidStack getFluid(ItemStack stack) {
+        return new FluidStack(this.fluid.getFluid(), this.fluid.getAmount(), stack.getNbt());
+    }
+
+    @Override
+    public JsonObject serialize(JsonSerializationContext context) {
+        JsonObject json = super.serialize(context);
+        json.addProperty("type", ID.toString());
+        return json;
+    }
+
+    /**
+     * Unique loader instance
+     */
+    public static final JsonDeserializer<EmptyFluidContainerTransfer> DESERIALIZER = new Deserializer<>(EmptyFluidWithNBTTransfer::new);
+}

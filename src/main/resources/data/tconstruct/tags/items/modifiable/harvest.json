@@ -1,0 +1,9 @@
+{
+  "values": [
+    "tconstruct:dagger",
+    "tconstruct:sword",
+    "tconstruct:cleaver",
+    "#tconstruct:modifiable/harvest/primary",
+    "#tconstruct:modifiable/harvest/stone"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "values": [
+    "tconstruct:embellishment",
+    "tconstruct:dyed",
+    "tconstruct:creative_slot",
+    "tconstruct:stat_override",
+    {
+      "id": "tconstruct:shiny",
+      "required": false
+    },
+    {
+      "id": "tconstruct:golden",
+      "required": false
+    }
+  ]
+}
