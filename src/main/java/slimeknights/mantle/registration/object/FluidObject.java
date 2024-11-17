@@ -106,4 +106,9 @@ public class FluidObject<F extends Fluid> implements Supplier<F>, ItemConvertibl
         }
         return FluidIngredient.of(this.getForgeTag(), amount);
     }
+
+    @Override
+    public Identifier getId() {
+        return this.id;
+    }
 }

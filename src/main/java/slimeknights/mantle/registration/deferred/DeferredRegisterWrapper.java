@@ -4,8 +4,6 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
 import slimeknights.mantle.registration.object.EnumObject;
 
 import java.util.function.BiFunction;
@@ -21,27 +19,29 @@ public abstract class DeferredRegisterWrapper<T> {
     /**
      * Registry instance, use this to provide register methods
      */
-    protected final SynchronizedDeferredRegister<T> register;
+//    protected final SynchronizedDeferredRegister<T> register;
     /**
      * Mod ID for registration
      */
     protected final String modID;
 
-    protected DeferredRegisterWrapper(RegistryKey<Registry<T>> reg, String modID) {
-        this(DeferredRegister.create(reg, modID), modID);
-    }
-
-    protected DeferredRegisterWrapper(DeferredRegister<T> register, String modID) {
-        this.register = SynchronizedDeferredRegister.create(register);
+    protected DeferredRegisterWrapper(String modID) {
         this.modID = modID;
     }
+//        this(DeferredRegister.create(reg, modID), modID);
+
+
+//    protected DeferredRegisterWrapper(DeferredRegister<T> register, String modID) {
+////        this.register = SynchronizedDeferredRegister.create(register);
+////        this.modID = modID;
+//    }
 
     /**
      * Initializes this registry wrapper. Needs to be called during mod construction
      */
-    public void register(IEventBus bus) {
-        this.register.register(bus);
-    }
+//    public void register(IEventBus bus) {
+//        this.register.register(bus);
+//    }
 
     /* Utilities */
 

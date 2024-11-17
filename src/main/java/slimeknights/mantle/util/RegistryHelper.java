@@ -123,7 +123,7 @@ public class RegistryHelper {
      * @param <T>      Registry type
      * @return Supplier for the given registry
      */
-    public static <T> Supplier<T> getHolder(DefaultedRegistry<T> registry, T entry) {
+    public static <T> RegistryEntry.Reference<T> getHolder(DefaultedRegistry<T> registry, T entry) {
         return registry.getEntry(registry.getRawId(entry)).orElseThrow();
     }
 }

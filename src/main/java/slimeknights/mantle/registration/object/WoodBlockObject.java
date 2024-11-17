@@ -73,10 +73,10 @@ public class WoodBlockObject extends FenceBuildingBlockObject {
                            Block pressurePlate, Block button, Block sign, Block wallSign) {
         super(planks, fence);
         this.woodType = woodType;
-        this.log = getHolder(Registries.BLOCK, log);
-        this.strippedLog = getHolder(Registries.BLOCK, strippedLog);
-        this.wood = getHolder(Registries.BLOCK, wood);
-        this.strippedWood = getHolder(Registries.BLOCK, strippedWood);
+        this.log = getHolder(Registries.BLOCK, log)::value;
+        this.strippedLog = getHolder(Registries.BLOCK, strippedLog)::value;
+        this.wood = getHolder(Registries.BLOCK, wood)::value;
+        this.strippedWood = getHolder(Registries.BLOCK, strippedWood)::value;
         this.fenceGate = getCastedHolder(Registries.BLOCK, fenceGate);
         this.door = getCastedHolder(Registries.BLOCK, door);
         this.trapdoor = getCastedHolder(Registries.BLOCK, trapdoor);

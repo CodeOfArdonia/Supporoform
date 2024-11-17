@@ -1,20 +1,19 @@
 package slimeknights.mantle.registration.deferred;
 
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.network.IContainerFactory;
-import net.minecraftforge.registries.RegistryObject;
 
 /**
- * Deferred register for menu types, automatically mapping a factory argument in {@link IForgeMenuType}
+ * Deferred register for menu types, automatically mapping a factory argument in {@link }
  */
 @SuppressWarnings("unused")
 public class MenuTypeDeferredRegister extends DeferredRegisterWrapper<ScreenHandlerType<?>> {
 
     public MenuTypeDeferredRegister(String modID) {
-        super(RegistryKeys.SCREEN_HANDLER, modID);
+        super(modID);
     }
 
     /**
@@ -25,7 +24,8 @@ public class MenuTypeDeferredRegister extends DeferredRegisterWrapper<ScreenHand
      * @param <C>     Container type
      * @return Registry object containing the container type
      */
-    public <C extends ScreenHandler> RegistryObject<ScreenHandlerType<C>> register(String name, IContainerFactory<C> factory) {
+    // TODO
+    public <C extends ScreenHandler> RegistryEntry<ScreenHandlerType<C>> register(String name, IContainerFactory<C> factory) {
         return this.register.register(name, () -> IForgeMenuType.create(factory));
     }
 }

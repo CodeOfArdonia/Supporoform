@@ -5,8 +5,8 @@ import lombok.Getter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.registry.DefaultedRegistry;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 import slimeknights.mantle.util.RegistryHelper;
 
@@ -24,7 +24,7 @@ public class ItemObject<I extends ItemConvertible> implements Supplier<I>, ItemC
     /**
      * Supplier to the registry entry
      */
-    private final Supplier<? extends I> entry;
+    private final RegistryEntry<? extends I> entry;
     /**
      * Registry name for this entry, allows fetching the name before the entry resolves if registry object is used
      */
@@ -46,9 +46,9 @@ public class ItemObject<I extends ItemConvertible> implements Supplier<I>, ItemC
      *
      * @param object Object base
      */
-    public ItemObject(RegistryObject<? extends I> object) {
+    public ItemObject(RegistryEntry<? extends I> object) {
         this.entry = object;
-        this.id = object.getId();
+        this.id = object.getKey().get().getValue();
     }
 
     /**
@@ -69,7 +69,7 @@ public class ItemObject<I extends ItemConvertible> implements Supplier<I>, ItemC
      */
     @Override
     public I get() {
-        return Objects.requireNonNull(this.entry.get(), () -> "Item Object not present " + this.id);
+        return Objects.requireNonNull(this.entry.value(), () -> "Item Object not present " + this.id);
     }
 
     /**
@@ -80,7 +80,7 @@ public class ItemObject<I extends ItemConvertible> implements Supplier<I>, ItemC
     @Nullable
     public I getOrNull() {
         try {
-            return this.entry.get();
+            return this.entry.value();
         } catch (NullPointerException e) {
             // thrown by RegistryObject if missing value
             return null;
@@ -90,5 +90,10 @@ public class ItemObject<I extends ItemConvertible> implements Supplier<I>, ItemC
     @Override
     public Item asItem() {
         return this.get().asItem();
+    }
+
+    @Override
+    public Identifier getId() {
+        return this.id;
     }
 }

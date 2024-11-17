@@ -21,9 +21,8 @@ public class ClearStainedGlassBlock extends AbstractGlassBlock {
     }
 
     @Nullable
-    @Override
     public float[] getBeaconColorMultiplier(BlockState state, WorldView world, BlockPos pos, BlockPos beaconPos) {
-        return this.glassColor.getRgb();
+        return GlassColor.calcRGB(glassColor.color);
     }
 
     /**
@@ -90,6 +89,10 @@ public class ClearStainedGlassBlock extends AbstractGlassBlock {
             out[1] = ((color >> 8) & 0xFF) / 255f;
             out[2] = (color & 0xFF) / 255f;
             return out;
+        }
+
+        public DyeColor getDye() {
+            return this.dye;
         }
 
         @Override

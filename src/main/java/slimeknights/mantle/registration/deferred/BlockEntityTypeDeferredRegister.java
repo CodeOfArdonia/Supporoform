@@ -7,11 +7,14 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.BlockEntityType.BlockEntityFactory;
 import net.minecraft.datafixer.TypeReferences;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Util;
-import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 import slimeknights.mantle.registration.object.EnumObject;
+import slimeknights.tconstruct.TConstruct;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -21,7 +24,7 @@ import java.util.function.Supplier;
  */
 public class BlockEntityTypeDeferredRegister extends DeferredRegisterWrapper<BlockEntityType<?>> {
     public BlockEntityTypeDeferredRegister(String modID) {
-        super(RegistryKeys.BLOCK_ENTITY_TYPE, modID);
+        super(modID);
     }
 
     /**
@@ -45,8 +48,8 @@ public class BlockEntityTypeDeferredRegister extends DeferredRegisterWrapper<Blo
      * @return Registry object instance
      */
     @SuppressWarnings("ConstantConditions")
-    public <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, Supplier<? extends Block> block) {
-        return this.register.register(name, () -> BlockEntityType.Builder.<T>create(factory, block.get()).build(this.getType(name)));
+    public <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, Supplier<? extends Block> block) {
+        return RegistryEntry.of(Registry.register(Registries.BLOCK_ENTITY_TYPE, TConstruct.getResource(name), BlockEntityType.Builder.<T>create(factory, block.get()).build(this.getType(name))));
     }
 
     /**
@@ -59,8 +62,8 @@ public class BlockEntityTypeDeferredRegister extends DeferredRegisterWrapper<Blo
      * @return Tile entity type registry object
      */
     @SuppressWarnings("ConstantConditions")
-    public <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, EnumObject<?, ? extends Block> blocks) {
-        return this.register.register(name, () -> new BlockEntityType<>(factory, ImmutableSet.copyOf(blocks.values()), this.getType(name)));
+    public <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, EnumObject<?, ? extends Block> blocks) {
+        return RegistryEntry.of(Registry.register(Registries.BLOCK_ENTITY_TYPE,TConstruct.getResource(name), new BlockEntityType<>(factory, ImmutableSet.copyOf(blocks.values()), this.getType(name))));
     }
 
     /**
@@ -73,11 +76,13 @@ public class BlockEntityTypeDeferredRegister extends DeferredRegisterWrapper<Blo
      * @return Tile entity type registry object
      */
     @SuppressWarnings("ConstantConditions")
-    public <T extends BlockEntity> RegistryObject<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, Consumer<ImmutableSet.Builder<Block>> blockCollector) {
-        return this.register.register(name, () -> {
+    public <T extends BlockEntity> RegistryEntry<BlockEntityType<T>> register(String name, BlockEntityFactory<? extends T> factory, Consumer<ImmutableSet.Builder<Block>> blockCollector) {
+        Supplier<BlockEntityType<T>> blockEntityTypeSupplier = () -> {
             ImmutableSet.Builder<Block> blocks = new ImmutableSet.Builder<>();
             blockCollector.accept(blocks);
             return new BlockEntityType<>(factory, blocks.build(), this.getType(name));
-        });
+        };
+        return RegistryEntry.of(Registry.register(Registries.BLOCK_ENTITY_TYPE,
+                TConstruct.getResource(name), blockEntityTypeSupplier.get()));
     }
 }

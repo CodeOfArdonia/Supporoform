@@ -8,6 +8,7 @@ import net.minecraft.item.Items;
 import net.minecraft.registry.DefaultedRegistry;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import net.minecraftforge.registries.MissingMappingsEvent;
 import net.minecraftforge.registries.MissingMappingsEvent.Mapping;
@@ -54,8 +55,8 @@ public class RegistrationHelper {
      */
     @SuppressWarnings("unchecked")  // we know the entry is the given type
     public static <T, R extends T> Supplier<R> getCastedHolder(DefaultedRegistry<T> registry, T entry) {
-        Supplier<T> holder = RegistryHelper.getHolder(registry, entry);
-        return () -> (R) holder.get();
+        RegistryEntry.Reference<T> holder = RegistryHelper.getHolder(registry, entry);
+        return () -> (R) holder.value();
     }
 
     /**

@@ -1,10 +1,14 @@
 package slimeknights.mantle.registration.deferred;
 
 import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.StringIdentifiable;
 import slimeknights.mantle.registration.object.EnumObject;
 import slimeknights.mantle.registration.object.ItemObject;
+import slimeknights.tconstruct.TConstruct;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -16,7 +20,7 @@ import java.util.function.Supplier;
 public class ItemDeferredRegister extends DeferredRegisterWrapper<Item> {
 
     public ItemDeferredRegister(String modID) {
-        super(RegistryKeys.ITEM, modID);
+        super(modID);
     }
 
     /**
@@ -27,7 +31,7 @@ public class ItemDeferredRegister extends DeferredRegisterWrapper<Item> {
      * @return Item registry object
      */
     public <I extends Item> ItemObject<I> register(String name, Supplier<? extends I> sup) {
-        return new ItemObject<>(this.register.register(name, sup));
+        return new ItemObject<>(RegistryEntry.of(Registry.register(Registries.ITEM, TConstruct.getResource(name), sup.get())));
     }
 
     /**
